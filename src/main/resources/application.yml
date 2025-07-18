@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: portfolio-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/portfolio
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
