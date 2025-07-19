@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,9 +28,6 @@ public class ProjetoService {
     public Projeto criar(CriarProjetoDTO dto) {
         Pessoa gerente = pessoaRepository.findById(dto.gerenteId())
                 .orElseThrow(() -> new EntityNotFoundException("Gerente não encontrado"));
-
-        Set<Pessoa> membros = new HashSet<>();
-
 
         if (dto.dataPrevisaoFim().isBefore(dto.dataInicio())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de previsão de fim não pode ser anterior à data de início");
@@ -49,7 +45,9 @@ public class ProjetoService {
                 .build();
 
         if (dto.membrosIds() != null) {
-            p.setMembros(new HashSet<>(pessoaRepository.findAllById(dto.membrosIds())));
+            Set<Pessoa> membros = pessoaRepository.findAllByIdIn(dto.membrosIds());
+            validarMembros(membros);
+            p.setMembros(membros);
         }
 
         return projetoRepository.save(p);
@@ -82,12 +80,13 @@ public class ProjetoService {
             projeto.setGerente(novoGerente);
         }
 
-        if (projeto.getStatus().equals(StatusProjeto.ENCERRADO) && projeto.getDataFim() == null) {
+        if (dto.status() != null && dto.status().equals(StatusProjeto.ENCERRADO) && projeto.getDataFim() == null) {
             projeto.setDataFim(LocalDate.now());
         }
 
         if (dto.membrosIds() != null) {
-            Set<Pessoa> membros = new HashSet<>(pessoaRepository.findAllById(dto.membrosIds()));
+            Set<Pessoa> membros = pessoaRepository.findAllByIdIn(dto.membrosIds());
+            validarMembros(membros);
             projeto.setMembros(membros);
         }
 
@@ -112,5 +111,22 @@ public class ProjetoService {
         }
 
         projetoRepository.delete(p);
+    }
+
+    private void validarMembros(Set<Pessoa> membros) {
+        if (!membros.isEmpty()) {
+
+            boolean temNaoFuncionario = membros.stream()
+                    .anyMatch(pessoa -> !pessoa.getFuncionario());
+
+            System.out.printf("Tem não funcionário: %s%n", temNaoFuncionario);
+
+            if (temNaoFuncionario) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Apenas funcionários podem ser membros de projetos"
+                );
+            }
+        }
     }
 }
