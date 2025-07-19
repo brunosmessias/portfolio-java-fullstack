@@ -6,6 +6,8 @@ import com.brunomessias.portfolio_java_fullstack.entities.RiscoProjeto;
 import com.brunomessias.portfolio_java_fullstack.entities.StatusProjeto;
 import com.brunomessias.portfolio_java_fullstack.services.PessoaService;
 import com.brunomessias.portfolio_java_fullstack.services.ProjetoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -17,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/projetos")
 @RequiredArgsConstructor
+@Tag(name = "Projetos", description = "Operações relacionadas a projetos")
 class ProjetoController {
 
     private final ProjetoService projetoService;
@@ -40,6 +43,7 @@ class ProjetoController {
         return "formProjeto";
     }
 
+    @Operation(summary = "Cria um novo projeto")
     @PostMapping
     public String criar(@Valid @ModelAttribute CriarProjetoDTO dto,
                         RedirectAttributes redirectAttributes,
@@ -58,6 +62,7 @@ class ProjetoController {
         }
     }
 
+    @Operation(summary = "Atualiza um projeto")
     @PutMapping("/{id}")
     public String atualizar(@PathVariable Long id,
                             @Valid @ModelAttribute AtualizarProjetoDTO dto,
@@ -79,6 +84,7 @@ class ProjetoController {
         }
     }
 
+    @Operation(summary = "Deleta um projeto")
     @DeleteMapping("/{id}")
     public String deletar(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

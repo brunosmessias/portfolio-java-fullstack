@@ -119,8 +119,6 @@ public class ProjetoService {
             boolean temNaoFuncionario = membros.stream()
                     .anyMatch(pessoa -> !pessoa.getFuncionario());
 
-            System.out.printf("Tem não funcionário: %s%n", temNaoFuncionario);
-
             if (temNaoFuncionario) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
