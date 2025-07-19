@@ -417,7 +417,7 @@
                        min="0"
                        required
                        aria-describedby="orcamentoHelp"
-                       oninput="formatCurrency(this)"/>
+                       onchange="formatCurrency(this)"/>
               </div>
               <div id="orcamentoHelp" class="form-text">Valor previsto para o projeto.</div>
             </div>
@@ -783,7 +783,6 @@
         // Basic currency formatting (you can enhance this)
         const value = parseFloat(input.value);
         if (!isNaN(value) && value >= 0) {
-            // Format to 2 decimal places
             input.value = value.toFixed(2);
         }
     }
