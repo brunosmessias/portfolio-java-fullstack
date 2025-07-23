@@ -1,7 +1,6 @@
 package com.brunomessias.portfolio_java_fullstack;
 
 import com.brunomessias.portfolio_java_fullstack.entities.Projeto;
-import com.brunomessias.portfolio_java_fullstack.repository.PessoaRepository;
 import com.brunomessias.portfolio_java_fullstack.repository.ProjetoRepository;
 import com.brunomessias.portfolio_java_fullstack.services.ProjetoService;
 import org.junit.jupiter.api.DisplayName;
@@ -26,24 +25,18 @@ class ProjetoServiceBuscaTest {
     @Mock
     private ProjetoRepository projetoRepository;
 
-    @Mock
-    private PessoaRepository pessoaRepository;
-
     @InjectMocks
     private ProjetoService projetoService;
 
     @Test
     @DisplayName("Deve buscar projeto por ID com sucesso quando projeto existe")
     void deveBuscarProjetoPorIdComSucesso() {
-        // Given
         var projetoEsperado = ProjetoTestDataBuilder.criarProjetoEmAnalise();
         when(projetoRepository.findById(1L))
             .thenReturn(Optional.of(projetoEsperado));
 
-        // When
         var resultado = projetoService.buscar(1L);
 
-        // Then
         assertThat(resultado)
             .isNotNull()
             .satisfies(projeto -> {
@@ -57,12 +50,10 @@ class ProjetoServiceBuscaTest {
     @Test
     @DisplayName("Deve lançar exceção quando projeto não encontrado")
     void deveLancarExcecaoQuandoProjetoNaoEncontrado() {
-        // Given
         var idInexistente = 999L;
         when(projetoRepository.findById(idInexistente))
             .thenReturn(Optional.empty());
 
-        // When & Then
         assertThatThrownBy(() -> projetoService.buscar(idInexistente))
             .isInstanceOf(ResponseStatusException.class)
             .satisfies(exception -> {
@@ -75,15 +66,12 @@ class ProjetoServiceBuscaTest {
     @Test
     @DisplayName("Deve buscar projeto com todos os relacionamentos carregados")
     void deveBuscarProjetoComRelacionamentosCarregados() {
-        // Given
         var projetoCompleto = ProjetoTestDataBuilder.criarProjetoComMembros();
         when(projetoRepository.findById(1L))
             .thenReturn(Optional.of(projetoCompleto));
 
-        // When
         var resultado = projetoService.buscar(1L);
 
-        // Then
         assertThat(resultado)
             .satisfies(projeto -> {
                 assertThat(projeto.getGerente()).isNotNull();
@@ -95,15 +83,12 @@ class ProjetoServiceBuscaTest {
     @Test
     @DisplayName("Deve buscar projeto independente do status")
     void deveBuscarProjetoIndependenteDoStatus() {
-        // Given
         var projetoEncerrado = ProjetoTestDataBuilder.criarProjetoEncerrado();
         when(projetoRepository.findById(1L))
             .thenReturn(Optional.of(projetoEncerrado));
 
-        // When
         var resultado = projetoService.buscar(1L);
 
-        // Then
         assertThat(resultado)
             .isNotNull()
             .extracting(Projeto::getStatus)

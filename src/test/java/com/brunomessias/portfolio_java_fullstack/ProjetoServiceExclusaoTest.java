@@ -36,51 +36,17 @@ class ProjetoServiceExclusaoTest {
     @InjectMocks
     private ProjetoService projetoService;
 
-    @Test
-    @DisplayName("Deve excluir projeto em análise com sucesso")
-    void deveExcluirProjetoEmAnaliseComSucesso() {
-        // Given
-        var projeto = ProjetoTestDataBuilder.criarProjetoEmAnalise();
-        when(projetoRepository.findById(1L))
-            .thenReturn(Optional.of(projeto));
-
-        // When
-        projetoService.excluir(1L);
-
-        // Then
-        verify(projetoRepository).delete(projeto);
-    }
-
-    @Test
-    @DisplayName("Deve excluir projeto cancelado com sucesso")
-    void deveExcluirProjetoCanceladoComSucesso() {
-        // Given
-        var projeto = ProjetoTestDataBuilder.criarProjetoEmAnalise();
-        projeto.setStatus(StatusProjeto.CANCELADO);
-        
-        when(projetoRepository.findById(1L))
-            .thenReturn(Optional.of(projeto));
-
-        // When
-        projetoService.excluir(1L);
-
-        // Then
-        verify(projetoRepository).delete(projeto);
-    }
-
     @ParameterizedTest
     @EnumSource(value = StatusProjeto.class, 
                names = {"INICIADO", "EM_ANDAMENTO", "ENCERRADO"})
     @DisplayName("Deve impedir exclusão de projetos com status restritivos")
     void deveImpedirExclusaoComStatusRestritivos(StatusProjeto statusRestritivo) {
-        // Given
         var projeto = ProjetoTestDataBuilder.criarProjetoEmAnalise();
         projeto.setStatus(statusRestritivo);
         
         when(projetoRepository.findById(1L))
             .thenReturn(Optional.of(projeto));
 
-        // When & Then
         assertThatThrownBy(() -> projetoService.excluir(1L))
             .isInstanceOf(ResponseStatusException.class)
             .satisfies(exception -> {
@@ -100,29 +66,24 @@ class ProjetoServiceExclusaoTest {
                mode = EnumSource.Mode.EXCLUDE)
     @DisplayName("Deve permitir exclusão de projetos com status permitidos")
     void devePermitirExclusaoComStatusPermitidos(StatusProjeto statusPermitido) {
-        // Given
         var projeto = ProjetoTestDataBuilder.criarProjetoEmAnalise();
         projeto.setStatus(statusPermitido);
         
         when(projetoRepository.findById(1L))
             .thenReturn(Optional.of(projeto));
 
-        // When
         projetoService.excluir(1L);
 
-        // Then
         verify(projetoRepository).delete(projeto);
     }
 
     @Test
     @DisplayName("Deve falhar ao tentar excluir projeto inexistente")
     void deveFalharAoExcluirProjetoInexistente() {
-        // Given
         var idInexistente = 999L;
         when(projetoRepository.findById(idInexistente))
             .thenReturn(Optional.empty());
 
-        // When & Then
         assertThatThrownBy(() -> projetoService.excluir(idInexistente))
             .isInstanceOf(ResponseStatusException.class)
             .satisfies(exception -> {
@@ -137,15 +98,12 @@ class ProjetoServiceExclusaoTest {
     @Test
     @DisplayName("Deve validar se projeto foi realmente excluído")
     void deveValidarSeProjetoFoiExcluido() {
-        // Given
         var projeto = ProjetoTestDataBuilder.criarProjetoEmAnalise();
         when(projetoRepository.findById(1L))
             .thenReturn(Optional.of(projeto));
 
-        // When
         projetoService.excluir(1L);
 
-        // Then
         verify(projetoRepository, times(1)).findById(1L);
         verify(projetoRepository, times(1)).delete(projeto);
         verifyNoMoreInteractions(projetoRepository);
@@ -154,17 +112,14 @@ class ProjetoServiceExclusaoTest {
     @Test
     @DisplayName("Deve excluir projeto em análise mesmo com membros associados")
     void deveExcluirProjetoComMembrosAssociados() {
-        // Given
         var projetoComMembros = ProjetoTestDataBuilder.criarProjetoComMembros();
         projetoComMembros.setStatus(StatusProjeto.EM_ANALISE);
         
         when(projetoRepository.findById(1L))
             .thenReturn(Optional.of(projetoComMembros));
 
-        // When
         projetoService.excluir(1L);
 
-        // Then
         verify(projetoRepository).delete(projetoComMembros);
     }
 }

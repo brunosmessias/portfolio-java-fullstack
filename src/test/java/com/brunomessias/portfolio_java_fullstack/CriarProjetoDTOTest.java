@@ -30,20 +30,16 @@ class CriarProjetoDTOTest {
     @Test
     @DisplayName("Deve validar DTO válido sem erros")
     void deveValidarDTOValidoSemErros() {
-        // Given
         CriarProjetoDTO dto = ProjetoTestDataBuilder.criarProjetoDTO();
 
-        // When
         Set<ConstraintViolation<CriarProjetoDTO>> violations = validator.validate(dto);
 
-        // Then
         assertThat(violations).isEmpty();
     }
 
     @Test
     @DisplayName("Deve falhar quando nome for nulo ou vazio")
     void deveFalharQuandoNomeForNuloOuVazio() {
-        // Given
         CriarProjetoDTO dtoNulo = new CriarProjetoDTO(
                 null, LocalDate.now(), LocalDate.now().plusDays(30),
                 "desc", 1000.0, RiscoProjeto.BAIXO, 1L, null
@@ -54,11 +50,9 @@ class CriarProjetoDTOTest {
                 "desc", 1000.0, RiscoProjeto.BAIXO, 1L, null
         );
 
-        // When
         Set<ConstraintViolation<CriarProjetoDTO>> violationsNulo = validator.validate(dtoNulo);
         Set<ConstraintViolation<CriarProjetoDTO>> violationsVazio = validator.validate(dtoVazio);
 
-        // Then
         assertThat(violationsNulo).hasSize(1);
         assertThat(violationsVazio).hasSize(1);
         assertThat(violationsNulo.iterator().next().getPropertyPath().toString()).isEqualTo("nome");

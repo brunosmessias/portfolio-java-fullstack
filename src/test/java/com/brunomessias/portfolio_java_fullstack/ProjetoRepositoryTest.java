@@ -31,19 +31,16 @@ class ProjetoRepositoryTest {
     @Test
     @DisplayName("Deve salvar e recuperar projeto corretamente")
     void deveSalvarERecuperarProjetoCorretamente() {
-        // Given
         Pessoa gerente = ProjetoTestDataBuilder.criarGerente();
         entityManager.persistAndFlush(gerente);
 
         Projeto projeto = ProjetoTestDataBuilder.criarProjetoEmAnalise();
         projeto.setGerente(gerente);
 
-        // When
         Projeto projetoSalvo = projetoRepository.save(projeto);
         entityManager.flush();
         entityManager.clear();
 
-        // Then
         Optional<Projeto> projetoRecuperado = projetoRepository.findById(projetoSalvo.getId());
 
         assertThat(projetoRecuperado).isPresent();
@@ -54,7 +51,6 @@ class ProjetoRepositoryTest {
     @Test
     @DisplayName("Deve manter relacionamento com membros")
     void deveManterRelacionamentoComMembros() {
-        // Given
         Pessoa gerente = ProjetoTestDataBuilder.criarGerente();
         Pessoa membro1 = ProjetoTestDataBuilder.criarFuncionario("Membro 1");
         Pessoa membro2 = ProjetoTestDataBuilder.criarFuncionario("Membro 2");
@@ -69,12 +65,10 @@ class ProjetoRepositoryTest {
         projeto.getMembros().add(membro1);
         projeto.getMembros().add(membro2);
 
-        // When
         Projeto projetoSalvo = projetoRepository.save(projeto);
         entityManager.flush();
         entityManager.clear();
 
-        // Then
         Projeto projetoRecuperado = projetoRepository.findById(projetoSalvo.getId()).get();
         assertThat(projetoRecuperado.getMembros()).hasSize(2);
     }

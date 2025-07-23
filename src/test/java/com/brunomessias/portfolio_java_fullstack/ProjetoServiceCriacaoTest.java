@@ -32,7 +32,6 @@ class ProjetoServiceCriacaoTest {
     @Test
     @DisplayName("Deve criar projeto com sucesso quando dados válidos")
     void deveCriarProjetoComSucesso() {
-        // Given - Arrange
         var dto = ProjetoTestDataBuilder.criarProjetoDTO();
         var gerente = ProjetoTestDataBuilder.criarGerente();
         var membros = ProjetoTestDataBuilder.criarMembrosValidos();
@@ -44,10 +43,8 @@ class ProjetoServiceCriacaoTest {
         when(projetoRepository.save(any(Projeto.class)))
                 .thenAnswer(ProjetoTestDataBuilder::salvarComId);
 
-        // When - Act
         var resultado = projetoService.criar(dto);
 
-        // Then - Assert
         assertThat(resultado)
                 .satisfies(projeto -> {
                     assertThat(projeto.getId()).isNotNull();
@@ -63,12 +60,10 @@ class ProjetoServiceCriacaoTest {
     @Test
     @DisplayName("Deve falhar quando gerente não existe")
     void deveFalharQuandoGerenteNaoExiste() {
-        // Given
         var dto = ProjetoTestDataBuilder.criarProjetoDTO();
         when(pessoaRepository.findById(dto.gerenteId()))
                 .thenReturn(Optional.empty());
 
-        // When & Then
         assertThatThrownBy(() -> projetoService.criar(dto))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Gerente não encontrado");
@@ -79,14 +74,12 @@ class ProjetoServiceCriacaoTest {
     @Test
     @DisplayName("Deve falhar quando data fim anterior ao início")
     void deveFalharQuandoDataFimAnteriorInicio() {
-        // Given
         var dto = ProjetoTestDataBuilder.criarProjetoDTOComDatasInvalidas();
         var gerente = ProjetoTestDataBuilder.criarGerente();
 
         when(pessoaRepository.findById(dto.gerenteId()))
                 .thenReturn(Optional.of(gerente));
 
-        // When & Then
         assertThatThrownBy(() -> projetoService.criar(dto))
                 .isInstanceOf(ResponseStatusException.class)
                 .extracting("status")
@@ -96,7 +89,6 @@ class ProjetoServiceCriacaoTest {
     @Test
     @DisplayName("Deve falhar quando membros não são funcionários")
     void deveFalharQuandoMembrosNaoSaoFuncionarios() {
-        // Given
         var dto = ProjetoTestDataBuilder.criarProjetoDTO();
         var gerente = ProjetoTestDataBuilder.criarGerente();
         var membrosInvalidos = ProjetoTestDataBuilder.criarMembrosComGerentes();
@@ -106,7 +98,6 @@ class ProjetoServiceCriacaoTest {
         when(pessoaRepository.findAllByIdIn(dto.membrosIds()))
                 .thenReturn(membrosInvalidos);
 
-        // When & Then
         assertThatThrownBy(() -> projetoService.criar(dto))
                 .isInstanceOf(ResponseStatusException.class)
                 .extracting("status")

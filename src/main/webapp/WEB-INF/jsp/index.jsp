@@ -439,13 +439,6 @@
       Limpar Filtros
     </button>
   </div>
-
-  <!-- Pagination -->
-  <nav aria-label="Navegação de páginas" class="mt-4">
-    <ul class="pagination justify-content-center" id="pagination">
-      <!-- Pagination will be populated by JavaScript -->
-    </ul>
-  </nav>
 </main>
 
 <!-- Delete Confirmation Modal -->
@@ -568,9 +561,9 @@
         document.getElementById('projectName').textContent = projectName;
 
         const confirmButton = document.getElementById('confirmDelete');
-        confirmButton.onclick = function () {
+        confirmButton.onclick = () => {
             const form = document.getElementById('deleteForm');
-            form.action = `${window.location.origin}${window.location.pathname}/projetos/${projectId}`;
+            form.action = window.location.origin + window.location.pathname + "projetos/" + projectId;
             form.submit();
         };
 

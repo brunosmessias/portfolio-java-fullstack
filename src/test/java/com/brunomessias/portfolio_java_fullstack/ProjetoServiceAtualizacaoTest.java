@@ -43,7 +43,6 @@ class ProjetoServiceAtualizacaoTest {
     @Test
     @DisplayName("Deve atualizar projeto com todos os campos informados")
     void deveAtualizarProjetoComTodosCampos() {
-        // Given
         var projetoExistente = ProjetoTestDataBuilder.criarProjetoEmAnalise();
         var novoGerente = ProjetoTestDataBuilder.criarGerente("Novo Gerente", 2L);
         var novosMembros = Set.of(
@@ -72,10 +71,8 @@ class ProjetoServiceAtualizacaoTest {
         when(projetoRepository.save(any(Projeto.class)))
             .thenAnswer(i -> i.getArgument(0));
 
-        // When
         var resultado = projetoService.atualizar(1L, dto);
 
-        // Then
         assertThat(resultado)
             .satisfies(projeto -> {
                 assertThat(projeto.getNome()).isEqualTo("Nome Atualizado");
@@ -93,9 +90,7 @@ class ProjetoServiceAtualizacaoTest {
     @Test
     @DisplayName("Deve atualizar apenas campos informados mantendo os demais")
     void deveAtualizarApenasCamposInformados() {
-        // Given
         var projetoExistente = ProjetoTestDataBuilder.criarProjetoCompleto();
-        var nomeOriginal = projetoExistente.getNome();
         var orcamentoOriginal = projetoExistente.getOrcamento();
 
         var dto = new AtualizarProjetoDTO(
@@ -108,10 +103,8 @@ class ProjetoServiceAtualizacaoTest {
         when(projetoRepository.save(any(Projeto.class)))
             .thenAnswer(i -> i.getArgument(0));
 
-        // When
         var resultado = projetoService.atualizar(1L, dto);
 
-        // Then
         assertThat(resultado)
             .satisfies(projeto -> {
                 assertThat(projeto.getNome()).isEqualTo("Apenas Nome Novo");
@@ -124,7 +117,6 @@ class ProjetoServiceAtualizacaoTest {
     @Test
     @DisplayName("Deve definir data fim automaticamente quando status for ENCERRADO")
     void deveDefinirDataFimAutomaticamenteQuandoEncerrado() {
-        // Given
         var projeto = ProjetoTestDataBuilder.criarProjetoEmAndamento();
         var dto = new AtualizarProjetoDTO(
             null, null, null, null, null,
@@ -137,10 +129,8 @@ class ProjetoServiceAtualizacaoTest {
         when(projetoRepository.save(any(Projeto.class)))
             .thenAnswer(i -> i.getArgument(0));
 
-        // When
         var resultado = projetoService.atualizar(1L, dto);
 
-        // Then
         assertThat(resultado)
             .satisfies(proj -> {
                 assertThat(proj.getStatus()).isEqualTo(StatusProjeto.ENCERRADO);
@@ -151,7 +141,6 @@ class ProjetoServiceAtualizacaoTest {
     @Test
     @DisplayName("Não deve sobrescrever data fim se já estiver definida")
     void naoDeveSobrescreverDataFimExistente() {
-        // Given
         var dataFimOriginal = LocalDate.of(2025, 1, 15);
         var projeto = ProjetoTestDataBuilder.criarProjetoEmAndamento();
         projeto.setDataFim(dataFimOriginal);
@@ -167,10 +156,8 @@ class ProjetoServiceAtualizacaoTest {
         when(projetoRepository.save(any(Projeto.class)))
             .thenAnswer(i -> i.getArgument(0));
 
-        // When
         var resultado = projetoService.atualizar(1L, dto);
 
-        // Then
         assertThat(resultado.getDataFim())
             .isEqualTo(dataFimOriginal);
     }
@@ -178,7 +165,6 @@ class ProjetoServiceAtualizacaoTest {
     @Test
     @DisplayName("Deve falhar quando projeto não encontrado para atualização")
     void deveFalharQuandoProjetoNaoEncontrado() {
-        // Given
         var dto = new AtualizarProjetoDTO(
             "Nome", null, null, null, null, null, null, null, null
         );
@@ -186,7 +172,6 @@ class ProjetoServiceAtualizacaoTest {
         when(projetoRepository.findById(999L))
             .thenReturn(Optional.empty());
 
-        // When & Then
         assertThatThrownBy(() -> projetoService.atualizar(999L, dto))
             .isInstanceOf(ResponseStatusException.class)
             .satisfies(exception -> {
@@ -198,7 +183,6 @@ class ProjetoServiceAtualizacaoTest {
     @Test
     @DisplayName("Deve falhar quando novo gerente não encontrado")
     void deveFalharQuandoNovoGerenteNaoEncontrado() {
-        // Given
         var projeto = ProjetoTestDataBuilder.criarProjetoEmAnalise();
         var dto = new AtualizarProjetoDTO(
             null, null, null, null, null, null, null,
@@ -211,7 +195,6 @@ class ProjetoServiceAtualizacaoTest {
         when(pessoaRepository.findById(999L))
             .thenReturn(Optional.empty());
 
-        // When & Then
         assertThatThrownBy(() -> projetoService.atualizar(1L, dto))
             .isInstanceOf(ResponseStatusException.class)
             .satisfies(exception -> {
@@ -224,7 +207,6 @@ class ProjetoServiceAtualizacaoTest {
     @Test
     @DisplayName("Deve falhar quando membros não são funcionários")
     void deveFalharQuandoMembrosNaoSaoFuncionarios() {
-        // Given
         var projeto = ProjetoTestDataBuilder.criarProjetoEmAnalise();
         var dto = new AtualizarProjetoDTO(
             null, null, null, null, null, null, null, null,
@@ -244,7 +226,6 @@ class ProjetoServiceAtualizacaoTest {
         when(pessoaRepository.findAllByIdIn(dto.membrosIds()))
             .thenReturn(Set.of(funcionario, gerenteComoMembro));
 
-        // When & Then
         assertThatThrownBy(() -> projetoService.atualizar(1L, dto))
             .isInstanceOf(ResponseStatusException.class)
             .satisfies(exception -> {
@@ -258,7 +239,6 @@ class ProjetoServiceAtualizacaoTest {
     @Test
     @DisplayName("Deve falhar quando data fim anterior ao início na atualização")
     void deveFalharQuandoDataFimAnteriorInicio() {
-        // Given
         var projeto = ProjetoTestDataBuilder.criarProjetoEmAnalise();
         var dto = new AtualizarProjetoDTO(
             null,
@@ -270,7 +250,6 @@ class ProjetoServiceAtualizacaoTest {
         when(projetoRepository.findById(1L))
             .thenReturn(Optional.of(projeto));
 
-        // When & Then
         assertThatThrownBy(() -> projetoService.atualizar(1L, dto))
             .isInstanceOf(ResponseStatusException.class)
             .satisfies(exception -> {
