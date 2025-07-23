@@ -74,6 +74,10 @@ public class ProjetoService {
         if (dto.orcamento() != null) projeto.setOrcamento(dto.orcamento());
         if (dto.risco() != null) projeto.setRisco(dto.risco());
 
+        if (projeto.getDataPrevisaoFim().isBefore(projeto.getDataInicio())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de previsão de fim não pode ser anterior à data de início");
+        }
+
         if (dto.gerenteId() != null) {
             Pessoa novoGerente = pessoaRepository.findById(dto.gerenteId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Gerente não encontrado"));
@@ -99,7 +103,9 @@ public class ProjetoService {
 
     public void excluir(Long id) {
         Projeto p = projetoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Projeto não encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Projeto não encontrado"));
 
         if (List.of(StatusProjeto.INICIADO,
                 StatusProjeto.EM_ANDAMENTO,
